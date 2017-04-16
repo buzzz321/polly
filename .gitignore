@@ -1,0 +1,9 @@
+*.exe
+.idea/*
+*.xml
+.vscode/extensions.json
+*.go~
+notte
+*.iml
+data.dat
+Build notte
