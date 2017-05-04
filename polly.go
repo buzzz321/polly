@@ -75,7 +75,7 @@ func runner() {
 	var redKD, greenKD, kDBlue float64 = 0.0, 0.0, 0.0
 	gw2 := gw2util.Gw2Api{BaseUrl: "https://api.guildwars2.com/v2/", Key: gw2util.GetUserData(userData, "Notimik").Key}
 	for {
-		time.Sleep(20 * time.Minute)
+
 		stats := gw2util.GetWWWStats(gw2, "2007")
 
 		if stats.Kills.Blue > 0 {
@@ -91,10 +91,10 @@ func runner() {
 		mutex.Lock()
 		msg := fmt.Sprintf("K/D \n Blue: %6.2f\n Red: %6.2f\n Green: %6.2f\n", kDBlue, redKD, greenKD)
 		fmt.Println(msg)
-		dg.ChannelMessageSend(guilds["256795736677679104"].Channels[0].ID, msg)
+		//dg.ChannelMessageSend(guilds["256795736677679104"].Channels[0].ID, msg)
 		dg.ChannelMessageSend(guilds["95498187816570880"].Channels[0].ID, msg)
 		mutex.Unlock()
-
+		time.Sleep(20 * time.Minute)
 	}
 	fmt.Println("End of runner")
 }
