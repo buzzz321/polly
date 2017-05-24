@@ -90,9 +90,11 @@ func runner() {
 
 		mutex.Lock()
 		msg := fmt.Sprintf("K/D \n Blue: %6.2f\n Red: %6.2f\n Green: %6.2f\n", kDBlue, redKD, greenKD)
-		fmt.Println(msg)
-		//dg.ChannelMessageSend(guilds["256795736677679104"].Channels[0].ID, msg)
-		dg.ChannelMessageSend(guilds["95498187816570880"].Channels[0].ID, msg)
+		//fmt.Println(msg)
+		if len(guilds) > 0 {
+			//dg.ChannelMessageSend(guilds["256795736677679104"].Channels[0].ID, msg)
+			dg.ChannelMessageSend(guilds["95498187816570880"].Channels[0].ID, msg)
+		}
 		mutex.Unlock()
 		time.Sleep(20 * time.Minute)
 	}
