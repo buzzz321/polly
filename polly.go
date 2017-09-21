@@ -73,7 +73,7 @@ func guildCreate(s *discordgo.Session, mguild *discordgo.GuildCreate) {
 
 func runner() {
 	var redKD, greenKD, kDBlue float64 = 0.0, 0.0, 0.0
-	gw2 := gw2util.Gw2Api{BaseUrl: "https://api.guildwars2.com/v2/", Key: gw2util.GetUserData(userData, "Notimik").Key}
+	gw2 := gw2util.Gw2Api{BaseURL: "https://api.guildwars2.com/v2/", Key: gw2util.GetUserData(userData, "Notimik").Key}
 	for {
 
 		stats := gw2util.GetWWWStats(gw2, "2007")
