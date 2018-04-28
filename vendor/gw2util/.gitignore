@@ -1,0 +1,10 @@
+*.dat
+.idea/workspace.xml
+.idea/vcs.xml
+.idea/emacs.xml
+.idea/libraries/GOPATH__gw2util_.xml
+.idea/modules.xml
+*.go~
+.idea/misc.xml
+*.renamed
+debug

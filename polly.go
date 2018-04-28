@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	BotID    string
+	botID    string
 	userData gw2util.UserDataSlice
 	dg       *discordgo.Session
 	guilds   map[string]*discordgo.Guild // not thread safe..
@@ -41,7 +41,7 @@ func readkey(filename string) string {
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	// Ignore all messages created by the bot itself
-	if m.Author.ID == BotID {
+	if m.Author.ID == botID {
 		return
 	}
 
@@ -72,31 +72,35 @@ func guildCreate(s *discordgo.Session, mguild *discordgo.GuildCreate) {
 }
 
 func runner() {
-	var redKD, greenKD, kDBlue float64 = 0.0, 0.0, 0.0
+	var redKD, greenKD, dBlue float64 = 0.0, 0.0, 0.0
 	gw2 := gw2util.Gw2Api{BaseURL: "https://api.guildwars2.com/v2/", Key: gw2util.GetUserData(userData, "Notimik").Key}
 	for {
 
 		stats := gw2util.GetWWWStats(gw2, "2007")
+		var msg string
+		for _, stat := range stats {
+			if stat.Kills.Blue > 0 {
+				dBlue = stat.Kills.Blue / stat.Deaths.Blue
+			}
+			if stat.Kills.Red > 0 {
+				redKD = stat.Kills.Red / stat.Deaths.Red
+			}
+			if stat.Kills.Green > 0 {
+				greenKD = stat.Kills.Green / stat.Deaths.Green
+			}
 
-		if stats.Kills.Blue > 0 {
-			kDBlue = stats.Kills.Blue / stats.Deaths.Blue
+			msg += fmt.Sprintf("\nK/D Border %v\n Blue: %6.2f\n Red: %6.2f\n Green: %6.2f\n", stat.Name, dBlue, redKD, greenKD)
+			//fmt.Println(msg)
 		}
-		if stats.Kills.Red > 0 {
-			redKD = stats.Kills.Red / stats.Deaths.Red
-		}
-		if stats.Kills.Green > 0 {
-			greenKD = stats.Kills.Green / stats.Deaths.Green
-		}
-
 		mutex.Lock()
-		msg := fmt.Sprintf("K/D \n Blue: %6.2f\n Red: %6.2f\n Green: %6.2f\n", kDBlue, redKD, greenKD)
-		//fmt.Println(msg)
 		if len(guilds) > 0 {
-			//dg.ChannelMessageSend(guilds["256795736677679104"].Channels[0].ID, msg)
-			dg.ChannelMessageSend(guilds["95498187816570880"].Channels[0].ID, msg)
+			dg.ChannelMessageSend(guilds["256795736677679104"].Channels[0].ID, msg)
+			//dg.ChannelMessageSend(guilds["95498187816570880"].Channels[0].ID, msg)
 		}
 		mutex.Unlock()
+
 		time.Sleep(20 * time.Minute)
+
 	}
 	fmt.Println("End of runner")
 }
@@ -120,7 +124,7 @@ func main() {
 		fmt.Println("error obtaining account details,", err)
 	}
 	// Store the account ID for later use.
-	BotID = u.ID
+	botID = u.ID
 
 	// Register messageCreate as a callback for the messageCreate events.
 	dg.AddHandler(messageCreate)
