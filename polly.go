@@ -95,7 +95,7 @@ func runner() {
 		mutex.Lock()
 		if len(guilds) > 0 {
 			dg.ChannelMessageSend(guilds["256795736677679104"].Channels[0].ID, msg)
-			//dg.ChannelMessageSend(guilds["95498187816570880"].Channels[0].ID, msg)
+			dg.ChannelMessageSend(guilds["95498187816570880"].Channels[0].ID, msg)
 		}
 		mutex.Unlock()
 
