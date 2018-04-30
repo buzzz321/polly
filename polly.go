@@ -6,6 +6,7 @@ import (
 	"gw2util"
 	"log"
 	"os"
+	"strconv"
 	"sync"
 	"time"
 
@@ -73,7 +74,15 @@ func guildCreate(s *discordgo.Session, mguild *discordgo.GuildCreate) {
 
 func runner() {
 	var redKD, greenKD, dBlue float64 = 0.0, 0.0, 0.0
+	var wIds string
 	gw2 := gw2util.Gw2Api{BaseURL: "https://api.guildwars2.com/v2/", Key: gw2util.GetUserData(userData, "Notimik").Key}
+	servers := gw2util.GetWvWvWMatchParticipants(gw2, "2007")
+
+	for key := range servers.WorldName {
+		wIds += strconv.FormatInt(key, 10) + ","
+	}
+	wIds = wIds[0 : len(wIds)-1]
+	fmt.Printf("%v\n", gw2util.GetWorlds(gw2, wIds))
 	for {
 
 		stats := gw2util.GetWWWStats(gw2, "2007")
@@ -95,7 +104,7 @@ func runner() {
 		mutex.Lock()
 		if len(guilds) > 0 {
 			dg.ChannelMessageSend(guilds["256795736677679104"].Channels[0].ID, msg)
-			dg.ChannelMessageSend(guilds["95498187816570880"].Channels[0].ID, msg)
+			//dg.ChannelMessageSend(guilds["95498187816570880"].Channels[0].ID, msg)
 		}
 		mutex.Unlock()
 
