@@ -21,6 +21,9 @@ var (
 	mutex    = &sync.Mutex{}
 )
 
+const notteTestSrv = "256795736677679104"
+const sveaUlvarSrv = "95498187816570880"
+
 func readkey(filename string) string {
 	inputFile, err := os.Open(filename)
 	if err != nil {
@@ -65,29 +68,54 @@ func guildCreate(s *discordgo.Session, mguild *discordgo.GuildCreate) {
 
 	if mguild.Name == "Notte_test" {
 		if dg != nil {
-			//dg.ChannelMessageSend(guilds["256795736677679104"].Channels[0].ID, "Tjo!")
+			//dg.ChannelMessageSend(guilds[notteTestSrv].Channels[0].ID, "Tjo!")
 			//dg.ChannelMessageSend(guilds["95498187816570880"].Channels[0].ID, "Tjo!")
 		}
 	}
 	mutex.Unlock()
 }
 
+func deleteOldStatsInChannel(chID string) {
+	messages, err := dg.ChannelMessages(chID, 100, "", "", "")
+	if err != nil {
+		fmt.Printf("Couldnt get messages for %s %s\n", chID, err)
+	}
+
+	for _, msg := range messages {
+		if msg.Author.ID == botID {
+			dg.ChannelMessageDelete(chID, msg.ID)
+		}
+	}
+}
+
 func runner() {
 	var redKD, greenKD, dBlue float64 = 0.0, 0.0, 0.0
 	var wIds string
+	var notteMsg, sveaUlvarMsg *discordgo.Message
 	gw2 := gw2util.Gw2Api{BaseURL: "https://api.guildwars2.com/v2/", Key: gw2util.GetUserData(userData, "Notimik").Key}
-	servers := gw2util.GetWvWvWMatchParticipants(gw2, "2007")
+	serverColours := gw2util.GetWvWvWColours(gw2, "2007")
 
-	for key := range servers.WorldName {
+	for key := range serverColours.WorldColour {
 		wIds += strconv.FormatInt(key, 10) + ","
 	}
 	wIds = wIds[0 : len(wIds)-1]
-	fmt.Printf("%v\n", gw2util.GetWorlds(gw2, wIds))
+	serveNames := gw2util.GetWorlds(gw2, wIds)
+
+	var colourName map[string]string
+	colourName = make(map[string]string)
+
+	for id, colour := range serverColours.WorldColour {
+		colourName[colour] = serveNames.WorldName[id]
+	}
 	for {
 
 		stats := gw2util.GetWWWStats(gw2, "2007")
 		var msg string
 		for _, stat := range stats {
+			name := colourName[stat.Name]
+			if name == "" {
+				name = stat.Name
+			}
 			if stat.Kills.Blue > 0 {
 				dBlue = stat.Kills.Blue / stat.Deaths.Blue
 			}
@@ -98,17 +126,25 @@ func runner() {
 				greenKD = stat.Kills.Green / stat.Deaths.Green
 			}
 
-			msg += fmt.Sprintf("\nK/D Border %v\n Blue: %6.2f\n Red: %6.2f\n Green: %6.2f\n", stat.Name, dBlue, redKD, greenKD)
+			msg += fmt.Sprintf("\nK/D Border %v\n Blue: %6.2f\n Red: %6.2f\n Green: %6.2f\n", name, dBlue, redKD, greenKD)
 			//fmt.Println(msg)
 		}
 		mutex.Lock()
 		if len(guilds) > 0 {
-			dg.ChannelMessageSend(guilds["256795736677679104"].Channels[0].ID, msg)
-			//dg.ChannelMessageSend(guilds["95498187816570880"].Channels[0].ID, msg)
+			if notteMsg != nil {
+				dg.ChannelMessageDelete(guilds[notteTestSrv].Channels[0].ID, notteMsg.ID)
+			}
+			if sveaUlvarMsg != nil {
+				fmt.Println(sveaUlvarMsg.ID)
+				dg.ChannelMessageDelete(guilds[sveaUlvarSrv].Channels[0].ID, sveaUlvarMsg.ID)
+			}
+			notteMsg, _ = dg.ChannelMessageSend(guilds[notteTestSrv].Channels[0].ID, msg)
+			sveaUlvarMsg, _ = dg.ChannelMessageSend(guilds[sveaUlvarSrv].Channels[0].ID, msg)
+			//fmt.Println(notteMsg.ID)
+			//fmt.Println(sveaUlvarMsg.ID)
 		}
 		mutex.Unlock()
-
-		time.Sleep(20 * time.Minute)
+		time.Sleep(10 * time.Minute)
 
 	}
 	fmt.Println("End of runner")
@@ -146,6 +182,8 @@ func main() {
 		return
 	}
 
+	deleteOldStatsInChannel(notteTestSrv)
+	deleteOldStatsInChannel(sveaUlvarSrv)
 	//dg.ChannelMessageSend(guilds[1].Channels, "hejsan hoppsan")
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
 	go runner()
