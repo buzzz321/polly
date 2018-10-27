@@ -92,6 +92,8 @@ func runner() {
 	var redKD, greenKD, dBlue float64 = 0.0, 0.0, 0.0
 	var wIds string
 	var notteMsg, sveaUlvarMsg *discordgo.Message
+	var startupStats [5]gw2util.GW2WvWvWStats
+
 	gw2 := gw2util.Gw2Api{BaseURL: "https://api.guildwars2.com/v2/", Key: gw2util.GetUserData(userData, "Notimik").Key}
 	serverColours := gw2util.GetWvWvWColours(gw2, "2007")
 
@@ -103,30 +105,41 @@ func runner() {
 
 	var colourName map[string]string
 	colourName = make(map[string]string)
-
+	homeWorld := gw2util.GetHomeWorld(gw2)
+	fmt.Printf("Home world = %s \n", homeWorld)
 	for id, colour := range serverColours.WorldColour {
 		colourName[colour] = serveNames.WorldName[id]
 	}
 	for {
 
-		stats := gw2util.GetWWWStats(gw2, "2007")
+		stats := gw2util.GetWWWStats(gw2, homeWorld /*"2007"*/)
+		if startupStats[0].Name == "" {
+			fmt.Printf("Saving Old wvwvw stats")
+			startupStats = stats
+		}
+
 		var msg string
-		for _, stat := range stats {
+		for index, stat := range stats {
+			var currRedKD, currGreenKD, currBlueKD float64 = 0.0, 0.0, 0.0
 			name := colourName[stat.Name]
 			if name == "" {
 				name = stat.Name
 			}
 			if stat.Kills.Blue > 0 {
 				dBlue = stat.Kills.Blue / stat.Deaths.Blue
+				// add one to denom to combat div by zero ugly but what the heck..
+				currBlueKD = (stat.Kills.Blue - startupStats[index].Kills.Blue) / (stat.Deaths.Blue - startupStats[index].Deaths.Blue + 1)
 			}
 			if stat.Kills.Red > 0 {
 				redKD = stat.Kills.Red / stat.Deaths.Red
+				currRedKD = (stat.Kills.Red - startupStats[index].Kills.Red) / (stat.Deaths.Red - startupStats[index].Deaths.Red + 1)
 			}
 			if stat.Kills.Green > 0 {
 				greenKD = stat.Kills.Green / stat.Deaths.Green
+				currGreenKD = (stat.Kills.Green - startupStats[index].Kills.Green) / (stat.Deaths.Green - startupStats[index].Deaths.Green + 1)
 			}
 
-			msg += fmt.Sprintf("\nK/D Border %v\n Blue: %6.2f\n Red: %6.2f\n Green: %6.2f\n", name, dBlue, redKD, greenKD)
+			msg += fmt.Sprintf("\nK/D Border %v\n Blue: %6.1f (%6.1f)\n Red: %6.1f (%6.1f)\n Green: %6.1f (%6.1f)\n", name, dBlue, currBlueKD, redKD, currRedKD, greenKD, currGreenKD)
 			//fmt.Println(msg)
 		}
 		mutex.Lock()
