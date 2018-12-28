@@ -114,7 +114,7 @@ func runner() {
 
 		stats := gw2util.GetWWWStats(gw2, homeWorld /*"2007"*/)
 		if startupStats[0].Name == "" {
-			fmt.Printf("Saving Old wvwvw stats")
+			fmt.Printf("Saving Old wvwvw stats\n")
 			startupStats = stats
 		}
 
@@ -122,6 +122,7 @@ func runner() {
 		for index, stat := range stats {
 			var currRedKD, currGreenKD, currBlueKD float64 = 0.0, 0.0, 0.0
 			name := colourName[stat.Name]
+
 			if name == "" {
 				name = stat.Name
 			}
@@ -129,17 +130,22 @@ func runner() {
 				dBlue = stat.Kills.Blue / stat.Deaths.Blue
 				// add one to denom to combat div by zero ugly but what the heck..
 				currBlueKD = (stat.Kills.Blue - startupStats[index].Kills.Blue) / (stat.Deaths.Blue - startupStats[index].Deaths.Blue + 1)
+				//fmt.Printf("currk:%6.0f oldk:%6.0f currd:%6.0f oldd:%6.0f\n", stat.Kills.Blue, startupStats[index].Kills.Blue, stat.Deaths.Blue, startupStats[index].Deaths.Blue)
 			}
 			if stat.Kills.Red > 0 {
 				redKD = stat.Kills.Red / stat.Deaths.Red
 				currRedKD = (stat.Kills.Red - startupStats[index].Kills.Red) / (stat.Deaths.Red - startupStats[index].Deaths.Red + 1)
+				//fmt.Printf("currk:%6.0f oldk:%6.0f currd:%6.0f oldd:%6.0f\n", stat.Kills.Red, startupStats[index].Kills.Red, stat.Deaths.Red, startupStats[index].Deaths.Red)
 			}
 			if stat.Kills.Green > 0 {
 				greenKD = stat.Kills.Green / stat.Deaths.Green
 				currGreenKD = (stat.Kills.Green - startupStats[index].Kills.Green) / (stat.Deaths.Green - startupStats[index].Deaths.Green + 1)
+				//fmt.Printf("currk:%6.0f oldk:%6.0f currd:%6.0f oldd:%6.0f\n", stat.Kills.Green, startupStats[index].Kills.Green, stat.Deaths.Green, startupStats[index].Deaths.Green)
 			}
 
-			msg += fmt.Sprintf("\nK/D Border %v\n Blue: %6.1f (%6.1f)\n Red: %6.1f (%6.1f)\n Green: %6.1f (%6.1f)\n", name, dBlue, currBlueKD, redKD, currRedKD, greenKD, currGreenKD)
+			msg += fmt.Sprintf("\nK/D Border %v (%v)\n Blue: %6.1f (%1.1f)\n ", name, stat.Name, dBlue, currBlueKD)
+			msg += fmt.Sprintf("Red: %6.1f (%1.1f)\n", redKD, currRedKD)
+			msg += fmt.Sprintf("Green: %6.1f (%1.1f)\n", greenKD, currGreenKD)
 			//fmt.Println(msg)
 		}
 		mutex.Lock()
@@ -153,7 +159,8 @@ func runner() {
 			}
 			notteMsg, _ = dg.ChannelMessageSend(guilds[notteTestSrv].Channels[0].ID, msg)
 			sveaUlvarMsg, _ = dg.ChannelMessageSend(guilds[sveaUlvarSrv].Channels[0].ID, msg)
-			//fmt.Println(notteMsg.ID)
+
+			fmt.Println(msg)
 			//fmt.Println(sveaUlvarMsg.ID)
 		}
 		mutex.Unlock()
