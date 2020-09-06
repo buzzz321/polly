@@ -125,12 +125,25 @@ func runner() {
 			var currRedKD, currGreenKD, currBlueKD float64 = 0.0, 0.0, 0.0
 			var currRedK, currGreenK, currBlueK float64 = 0.0, 0.0, 0.0
 			var currRedD, currGreenD, currBlueD float64 = 0.0, 0.0, 0.0
+			var score int64 = 0
+
 			name := colourName[stat.Name]
 
 			if name == "" {
 				name = stat.Name
 			}
+			if stat.Name == "blue" {
+				score = currscore.Blue
+			} else if stat.Name == "red" {
+				score = currscore.Red
+			} else if stat.Name == "green" {
+				score = currscore.Green
+			} else {
+				score = 0
+			}
+
 			if stat.Kills.Blue > 0 {
+
 				currBlueK = stat.Kills.Blue - startupStats[index].Kills.Blue
 				currBlueD = stat.Deaths.Blue - startupStats[index].Deaths.Blue
 
@@ -156,9 +169,9 @@ func runner() {
 				//fmt.Printf("currk:%6.0f oldk:%6.0f currd:%6.0f oldd:%6.0f\n", stat.Kills.Green, startupStats[index].Kills.Green, stat.Deaths.Green, startupStats[index].Deaths.Green)
 			}
 
-			msg += fmt.Sprintf("\nK/D Border %v (%v)\nBlue:\t%2.1f (%1.1f) Score %d\tKills %6.1f Deaths %6.1f\n", name, strings.Title(stat.Name), dBlue, currBlueKD, currscore.Blue, currBlueK, currBlueD)
-			msg += fmt.Sprintf("Red:\t%2.1f (%2.1f) Score %d\tKills %6.1f Deaths %6.1f\n", redKD, currRedKD, currscore.Red, currRedK, currRedD)
-			msg += fmt.Sprintf("Green:\t%2.1f (%2.1f) Score %d\tKills %6.1f Deaths %6.1f\n", greenKD, currGreenKD, currscore.Green, currGreenK, currGreenD)
+			msg += fmt.Sprintf("\nK/D Border %v (%v) Score %d\nBlue:\t%2.1f (%1.1f) \tKills %6.1f Deaths %6.1f\n", name, strings.Title(stat.Name), score, dBlue, currBlueKD, currBlueK, currBlueD)
+			msg += fmt.Sprintf("Red:\t%2.1f (%2.1f) \tKills %6.1f Deaths %6.1f\n", redKD, currRedKD, currRedK, currRedD)
+			msg += fmt.Sprintf("Green:\t%2.1f (%2.1f) \tKills %6.1f Deaths %6.1f\n", greenKD, currGreenKD, currGreenK, currGreenD)
 			//fmt.Println(msg)
 		}
 		mutex.Lock()
