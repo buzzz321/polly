@@ -113,6 +113,7 @@ func runner() {
 	}
 	for {
 
+		currscore := gw2util.GetWvWvWScore(gw2, homeWorld)
 		stats := gw2util.GetWWWStats(gw2, homeWorld /*"2007"*/)
 		if startupStats[0].Name == "" {
 			fmt.Printf("Saving Old wvwvw stats\n")
@@ -155,9 +156,9 @@ func runner() {
 				//fmt.Printf("currk:%6.0f oldk:%6.0f currd:%6.0f oldd:%6.0f\n", stat.Kills.Green, startupStats[index].Kills.Green, stat.Deaths.Green, startupStats[index].Deaths.Green)
 			}
 
-			msg += fmt.Sprintf("\nK/D Border %v (%v)\nBlue:\t%2.1f (%1.1f)\tKills %6.1f Deaths %6.1f\n", name, strings.Title(stat.Name), dBlue, currBlueKD, currBlueK, currBlueD)
-			msg += fmt.Sprintf("Red:\t%2.1f (%2.1f)\tKills %6.1f Deaths %6.1f\n", redKD, currRedKD, currRedK, currRedD)
-			msg += fmt.Sprintf("Green:\t%2.1f (%2.1f)\tKills %6.1f Deaths %6.1f\n", greenKD, currGreenKD, currGreenK, currGreenD)
+			msg += fmt.Sprintf("\nK/D Border %v (%v)\nBlue:\t%2.1f (%1.1f) Score %d\tKills %6.1f Deaths %6.1f\n", name, strings.Title(stat.Name), dBlue, currBlueKD, currscore.Blue, currBlueK, currBlueD)
+			msg += fmt.Sprintf("Red:\t%2.1f (%2.1f) Score %d\tKills %6.1f Deaths %6.1f\n", redKD, currRedKD, currscore.Red, currRedK, currRedD)
+			msg += fmt.Sprintf("Green:\t%2.1f (%2.1f) Score %d\tKills %6.1f Deaths %6.1f\n", greenKD, currGreenKD, currscore.Green, currGreenK, currGreenD)
 			//fmt.Println(msg)
 		}
 		mutex.Lock()
