@@ -113,7 +113,7 @@ func runner() {
 	}
 	for {
 
-		currscore := gw2util.GetWvWvWScore(gw2, homeWorld)
+		currscore := gw2util.GetWvWvWVictoryPoints(gw2, homeWorld)
 		stats := gw2util.GetWWWStats(gw2, homeWorld /*"2007"*/)
 		if startupStats[0].Name == "" {
 			fmt.Printf("Saving Old wvwvw stats\n")
