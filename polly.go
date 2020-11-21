@@ -193,7 +193,7 @@ func runner() {
 		time.Sleep(10 * time.Minute)
 
 	}
-	fmt.Println("End of runner")
+	fmt.Println("End of runner!")
 }
 
 func main() {
