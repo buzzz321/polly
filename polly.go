@@ -20,6 +20,7 @@ var (
 	dg       *discordgo.Session
 	guilds   map[string]*discordgo.Guild // not thread safe..
 	mutex    = &sync.Mutex{}
+	pollyCh  int
 )
 
 const notteTestSrv = "256795736677679104"
@@ -65,7 +66,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 func guildCreate(s *discordgo.Session, mguild *discordgo.GuildCreate) {
 	mutex.Lock()
 	fmt.Printf("Name : %s Id: %s\n", mguild.Name, mguild.ID)
-	guilds[mguild.Channels[0].ID] = mguild.Guild
+	guilds[mguild.Channels[pollyCh].ID] = mguild.Guild
 
 	if mguild.Name == "Notte_test" {
 		if dg != nil {
@@ -110,6 +111,14 @@ func runner() {
 	fmt.Printf("Home world = %s \n", homeWorld)
 	for id, colour := range serverColours.WorldColour {
 		colourName[colour] = serveNames.WorldName[id]
+	}
+
+	for i, ch := range guilds[sveaUlvarSrv].Channels {
+		if ch.Name == "polly-spam" {
+			fmt.Println(guilds[sveaUlvarSrv].Channels[i].Name)
+			print(i)
+			pollyCh = i
+		}
 	}
 	for {
 
@@ -177,16 +186,17 @@ func runner() {
 		mutex.Lock()
 		if len(guilds) > 0 {
 			if notteMsg != nil {
-				dg.ChannelMessageDelete(guilds[notteTestSrv].Channels[0].ID, notteMsg.ID)
+				dg.ChannelMessageDelete(guilds[notteTestSrv].Channels[pollyCh].ID, notteMsg.ID)
 			}
 			if sveaUlvarMsg != nil {
 				fmt.Println(sveaUlvarMsg.ID)
-				dg.ChannelMessageDelete(guilds[sveaUlvarSrv].Channels[0].ID, sveaUlvarMsg.ID)
+				dg.ChannelMessageDelete(guilds[sveaUlvarSrv].Channels[pollyCh].ID, sveaUlvarMsg.ID)
 			}
 			//notteMsg, _ = dg.ChannelMessageSend(guilds[notteTestSrv].Channels[0].ID, msg)
-			sveaUlvarMsg, _ = dg.ChannelMessageSend(guilds[sveaUlvarSrv].Channels[0].ID, msg)
+			sveaUlvarMsg, _ = dg.ChannelMessageSend(guilds[sveaUlvarSrv].Channels[pollyCh].ID, msg)
 
 			fmt.Println(msg)
+
 			//fmt.Println(sveaUlvarMsg.ID)
 		}
 		mutex.Unlock()
